@@ -251,95 +251,10 @@ install_wrap(){
     warp-cli register
     warp-cli set-mode proxy
     warp-cli connect
-    echo -e "install wrap success,now test connect" && curl ifconfig.me --proxy socks5://127.0.0.1:40000
-    echo "xray配置模版"
-    echo "-----------------------------"
-    echo '
-    {
-      "api": {
-        "services": [
-          "HandlerService",
-          "LoggerService",
-          "StatsService"
-        ],
-        "tag": "api"
-      },
-      "inbounds": [
-        {
-          "listen": "127.0.0.1",
-          "port": 62789,
-          "protocol": "dokodemo-door",
-          "settings": {
-            "address": "127.0.0.1"
-          },
-          "tag": "api"
-        }
-      ],
-      "outbounds": [
-        {
-          "protocol": "freedom",
-          "settings": {}
-        },
-        {
-          "tag": "chatGPT_proxy",
-          "protocol": "socks",
-          "settings": {
-            "servers": [
-              {
-                "address": "127.0.0.1",
-                "port": 40000
-              }
-            ]
-          }
-        },
-        {
-          "protocol": "blackhole",
-          "settings": {},
-          "tag": "blocked"
-        }
-      ],
-      "policy": {
-        "system": {
-          "statsInboundDownlink": true,
-          "statsInboundUplink": true
-        }
-      },
-      "routing": {
-        "rules": [
-              {
-            "type": "field",
-            "outboundTag": "chatGPT_proxy",
-            "domain": [
-              "chat.openai.com",
-             "platform.openai.com"
-            ]
-          },
-          {
-            "inboundTag": [
-              "api"
-            ],
-            "outboundTag": "api",
-            "type": "field"
-          },
-          {
-            "ip": [
-              "geoip:private"
-            ],
-            "outboundTag": "blocked",
-            "type": "field"
-          },
-          {
-            "outboundTag": "blocked",
-            "protocol": [
-              "bittorrent"
-            ],
-            "type": "field"
-          }
-        ]
-      },
-      "stats": {}
-    }
-    '
+    echo -e "install wrap success,now test connect....."
+    curl ifconfig.me --proxy socks5://127.0.0.1:40000
+    sleep 2
+    echo -e "if you see your ip,then you can use warp proxy,default port is 40000"
 }
 
 restart() {
