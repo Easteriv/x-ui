@@ -175,6 +175,7 @@ install_x-ui() {
     echo -e "x-ui install      - Install   x-ui "
     echo -e "x-ui uninstall    - Uninstall x-ui "
     echo -e "x-ui geo          - Update    geo  data"
+    echo -e "x-ui wrap         - cloud fare warp auto install"
     echo -e "----------------------------------------------"
 }
 

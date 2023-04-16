@@ -243,6 +243,105 @@ stop() {
     fi
 }
 
+install_wrap(){
+    curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+    apt update
+    apt install cloudflare-warp
+    warp-cli register
+    warp-cli set-mode proxy
+    warp-cli connect
+    echo -e "install wrap success,now test connect" && curl ifconfig.me --proxy socks5://127.0.0.1:40000
+    echo "xray配置模版"
+    echo "-----------------------------"
+    echo '
+    {
+      "api": {
+        "services": [
+          "HandlerService",
+          "LoggerService",
+          "StatsService"
+        ],
+        "tag": "api"
+      },
+      "inbounds": [
+        {
+          "listen": "127.0.0.1",
+          "port": 62789,
+          "protocol": "dokodemo-door",
+          "settings": {
+            "address": "127.0.0.1"
+          },
+          "tag": "api"
+        }
+      ],
+      "outbounds": [
+        {
+          "protocol": "freedom",
+          "settings": {}
+        },
+        {
+          "tag": "chatGPT_proxy",
+          "protocol": "socks",
+          "settings": {
+            "servers": [
+              {
+                "address": "127.0.0.1",
+                "port": 40000
+              }
+            ]
+          }
+        },
+        {
+          "protocol": "blackhole",
+          "settings": {},
+          "tag": "blocked"
+        }
+      ],
+      "policy": {
+        "system": {
+          "statsInboundDownlink": true,
+          "statsInboundUplink": true
+        }
+      },
+      "routing": {
+        "rules": [
+              {
+            "type": "field",
+            "outboundTag": "chatGPT_proxy",
+            "domain": [
+              "chat.openai.com",
+             "platform.openai.com"
+            ]
+          },
+          {
+            "inboundTag": [
+              "api"
+            ],
+            "outboundTag": "api",
+            "type": "field"
+          },
+          {
+            "ip": [
+              "geoip:private"
+            ],
+            "outboundTag": "blocked",
+            "type": "field"
+          },
+          {
+            "outboundTag": "blocked",
+            "protocol": [
+              "bittorrent"
+            ],
+            "type": "field"
+          }
+        ]
+      },
+      "stats": {}
+    }
+    '
+}
+
 restart() {
     systemctl restart x-ui
     sleep 2
@@ -785,6 +884,7 @@ show_usage() {
     echo "x-ui clear        - 清除 x-ui 日志"
     echo "x-ui geo          - 更新 x-ui geo数据"
     echo "x-ui cron         - 配置 x-ui 定时任务"
+    echo "x-ui wrap     - cloud fare warp 一键安装脚本"
     echo "------------------------------------------"
 }
 
@@ -814,9 +914,10 @@ show_menu() {
   ${green}15.${plain} 一键安装 bbr (最新内核)
   ${green}16.${plain} 一键申请SSL证书(acme申请)
   ${green}17.${plain} 配置x-ui定时任务
+  ${green}18.${plain} 一键安装wrap
  "
     show_status
-    echo && read -p "请输入选择 [0-17],查看面板登录信息请输入数字7:" num
+    echo && read -p "请输入选择 [0-18],查看面板登录信息请输入数字:" num
 
     case "${num}" in
     0)
@@ -873,8 +974,11 @@ show_menu() {
     17)
         check_install && cron_jobs
         ;;
+    18)
+        wrap_install
+        ;;
     *)
-        LOGE "请输入正确的数字 [0-17],查看面板登录信息请输入数字7"
+        LOGE "请输入正确的数字 [0-18],查看面板登录信息请输入数字"
         ;;
     esac
 }
@@ -923,6 +1027,9 @@ if [[ $# > 0 ]]; then
     "cron")
         check_install && cron_jobs
         ;;
+      "wrap")
+         install_wrap
+         ;;
     *) show_usage ;;
     esac
 else
