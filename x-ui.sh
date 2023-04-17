@@ -888,7 +888,7 @@ show_menu() {
         check_install && cron_jobs
         ;;
     18)
-        wrap_install
+        install_wrap
         ;;
     *)
         LOGE "请输入正确的数字 [0-18],查看面板登录信息请输入数字"
