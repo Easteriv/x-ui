@@ -41,11 +41,11 @@ for more detailed usages,plz see [WIKI](https://github.com/FranzKafkaYu/x-ui/wik
 Make sure your system `bash` and `curl` and `network` are ready,here we go
 
 ```
-bash <(curl -Ls https://raw.githubusercontent.com/FranzKafkaYu/x-ui/master/install.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/Easteriv/x-ui/master/install.sh)
 ```  
 For English Users,please use the following command to install English supported version:  
 ```
-bash <(curl -Ls https://raw.githubusercontent.com/FranzKafkaYu/x-ui/master/install_en.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/Easteriv/x-ui/master/install_en.sh)
 ``` 
 
 ## shortcut  
